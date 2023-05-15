@@ -4,7 +4,7 @@ const today = new Date();
 const year = today.getFullYear();
 const month = today.getMonth() + 1;
 const date = today.getDate()
-const nowDay = Number(`${year}0${month}${date}`);
+const nowDay = Number(`${year}${month < 10 ? '0' : ''}${month}${date < 10 ? '0' : ''}${date}`);
 
 
 function nowTime() {
@@ -17,41 +17,43 @@ function nowTime() {
 const nowTimes = nowTime()
 
 export async function requestWeather() {
-  const res = await axios({
-    url: `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst?serviceKey=GIOewzsyL6c7QAoFJ9C0NRCjCz5AtY51ltorfDz2H2HQNex8OsQVZV98TCCXSJ6zyPDm2UMm3MFNzEeorHNiSg%3D%3D&pageNo=1&numOfRows=1000&dataType=JSON&base_date=${nowDay}&base_time=${nowTimes}&nx=64&ny=127`,
-    method: "GET"
-  }).catch(err => {
-    console.log("requestWeather() is failed");
-  }).finally(() => {
+  try {
+    const res = await axios({
+      url: `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst?serviceKey=GIOewzsyL6c7QAoFJ9C0NRCjCz5AtY51ltorfDz2H2HQNex8OsQVZV98TCCXSJ6zyPDm2UMm3MFNzEeorHNiSg%3D%3D&pageNo=1&numOfRows=1000&dataType=JSON&base_date=${nowDay}&base_time=${nowTimes}&nx=64&ny=127`,
+      method: "GET"
+    });
     console.log("requestWeather() is finished");
-  });
-  return res.data.response.body.items.item
+    return res.data.response.body.items.item
+  } catch (err) {
+    console.log("requestWeather() is failed", err);
+  }
 }
 
 export async function skyState() {
-  const sky = await axios({
-    url: `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst?serviceKey=GIOewzsyL6c7QAoFJ9C0NRCjCz5AtY51ltorfDz2H2HQNex8OsQVZV98TCCXSJ6zyPDm2UMm3MFNzEeorHNiSg%3D%3D&pageNo=1&numOfRows=1000&dataType=JSON&base_date=${nowDay}&base_time=${nowTimes}&nx=64&ny=127`,
-    method: "GET"
-  }).catch(err => {
-    console.log("requestSky() is failed");
-  }).finally(() => {
+  try {
+    const sky = await axios({
+      url: `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst?serviceKey=GIOewzsyL6c7QAoFJ9C0NRCjCz5AtY51ltorfDz2H2HQNex8OsQVZV98TCCXSJ6zyPDm2UMm3MFNzEeorHNiSg%3D%3D&pageNo=1&numOfRows=1000&dataType=JSON&base_date=${nowDay}&base_time=${nowTimes}&nx=64&ny=127`,
+      method: "GET"
+    });
     console.log("requestSky() is finished");
-  })
-  return sky.data.response.body.items.item[18].fcstValue
+    return sky.data.response.body.items.item[18].fcstValue
+  } catch (err) {
+    console.log("requestSky() is failed", err);
+  }
 }
 
 export async function dayMaxMinDegree() {
-  const dayMaxMin = await axios({
-    url: `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=GIOewzsyL6c7QAoFJ9C0NRCjCz5AtY51ltorfDz2H2HQNex8OsQVZV98TCCXSJ6zyPDm2UMm3MFNzEeorHNiSg%3D%3D&pageNo=1&numOfRows=400&dataType=JSON&base_date=20230416&base_time=0500&nx=55&ny=127`,
-    method: "GET"
-  }).catch(err => {
-    console.log("dayMaxMinDegree() is failed");
-  }).finally(() => {
+  try {
+    const dayMaxMin = await axios({
+      url: `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=GIOewzsyL6c7QAoFJ9C0NRCjCz5AtY51ltorfDz2H2HQNex8OsQVZV98TCCXSJ6zyPDm2UMm3MFNzEeorHNiSg%3D%3D&pageNo=1&numOfRows=400&dataType=JSON&base_date=${nowDay}&base_time=${nowTimes}&nx=64&ny=127`,
+      method: "GET"
+    });
+    return [dayMaxMin.data.response.body.items.item[301].fcstValue, dayMaxMin.data.response.body.items.item[120].fcstValue]
+  }
+  finally {
     console.log("dayMaxMinDegree() is finished");
-  })
-  return [dayMaxMin.data.response.body.items.item[301].fcstValue, dayMaxMin.data.response.body.items.item[120].fcstValue]
+  }
 }
-dayMaxMinDegree()
 
 
 function changedBackground() {
